@@ -31,3 +31,6 @@ uid column: uid value                 #so you can easily find what rows are diff
 > "vval1","vval2","vval3",...         #values of those columns form file2
 ```
 If uid column values of currently compared rows do not match, rows are considered completely different and whole lines are printed into diff.
+
+#### Tests
+Tests are located in the **test** folder. You can invoke them by running **./run_tests.sh** from inside the folder. So far, there is only one test for general correct behavior of the csvdiff, just to establish a baseline.

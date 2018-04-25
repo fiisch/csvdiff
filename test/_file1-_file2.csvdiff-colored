@@ -1,0 +1,15 @@
+ID: 3
+  "Lastname"
+[31m< "Sherlock
+"
+[0m[32m> "Sherlock
+Holmes"
+[0mID: 4
+  "Firstname","Salary"
+[31m< "James T.","a vast supply of redshirts"
+[0m[32m> "James","a vast supply of red shirts"
+[0mID: 5
+  "Salary"
+[31m< "0"
+[0m[32m> "slice of bread"
+[0m

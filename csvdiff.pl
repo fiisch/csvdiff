@@ -1,5 +1,22 @@
 #!/usr/bin/perl
 
+# TODO:
+#   * add --no-color option
+#   * add general parsing of arguments
+#   * add case-insensitive comparison
+#   * support for distinct separators in compared files
+#   * support for distinct quotations in compared files
+#   * possibility to include/ignore some columns
+#   * drop requirement to have csv files sorted by uid column
+#   * drop requirement to have columns of csv files in same order
+#
+# Revision history:
+#
+# 2018-04-25  - Fiisch
+#   * Added simple test to check functionality.
+# 2018-03-01  - Fiisch
+#   * First dirty version.
+
 use strict;
 use warnings;
 
