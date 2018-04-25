@@ -1,8 +1,7 @@
 #!/usr/bin/perl
 
 # TODO:
-#   * add --no-color option
-#   * add general parsing of arguments
+#   * change plethora of separate variables for ARGS to one hash
 #   * add case-insensitive comparison
 #   * support for distinct separators in compared files
 #   * support for distinct quotations in compared files
@@ -14,6 +13,8 @@
 #
 # 2018-04-25  - Fiisch
 #   * Added simple test to check functionality.
+#   * Added arguments parsing using Getopt::Long.
+#   * Added --no-color option to suppress colorized output.
 # 2018-03-01  - Fiisch
 #   * First dirty version.
 
@@ -23,6 +24,43 @@ use warnings;
 use Text::CSV;
 use Data::Dumper;
 use Term::ANSIColor;
+use Getopt::Long;
+
+
+# Set up and parse command line arguments.
+
+# mandatory --file1
+my $opt_file1=undef;
+# mandatory --file2
+my $opt_file2=undef;
+# mandatory --idcol
+my $opt_idcol=undef;
+# optional --colsep
+# default ,
+my $opt_colsep=',';
+# optional --no-color
+# default false
+my $opt_no_color=0;
+
+GetOptions (
+  "file1=s" => \$opt_file1,
+  "file2=s" => \$opt_file2,
+  "idcol=s" => \$opt_idcol,
+  "colsep=s" => \$opt_colsep,
+  "no-color" => \$opt_no_color
+) or die("Error in command line arguments\n");
+
+if(!defined $opt_file1) {
+  die "CSV file --file1 not specified.\n";
+}
+if(!defined $opt_file2) {
+  die "CSV file --file2 not specified.\n";
+}
+if(!defined $opt_idcol) {
+  die "Id column --idcol not specified.\n";
+}
+
+# Do the real work
 
 our $csvout = undef;
 
@@ -43,13 +81,21 @@ sub printGreen {
 sub csvifyPrintLt {
   my $arr = shift;
   $csvout->combine(@$arr);
-  printRed("< " . $csvout->string() . "\n");
+  if($opt_no_color) {
+    print("< " . $csvout->string() . "\n");
+  } else {
+    printRed("< " . $csvout->string() . "\n");
+  }
 }
 
 sub csvifyPrintGt {
   my $arr = shift;
   $csvout->combine(@$arr);
-  printGreen("> " . $csvout->string() . "\n");
+  if($opt_no_color) {
+    print("> " . $csvout->string() . "\n");
+  } else {
+    printGreen("> " . $csvout->string() . "\n");
+  }
 }
 
 sub csvifyPrint {
@@ -58,11 +104,10 @@ sub csvifyPrint {
   print("  " . $csvout->string() . "\n");
 }
 
-# get commandline args
-my $idcolumn = $ARGV[0] or die "Need to get id column.\n";
-my $colsep = $ARGV[1] or die "Need to get separator.\n";
-my $file1 = $ARGV[2] or die "Need to get CSV file on the command line.\n";
-my $file2 = $ARGV[3] or die "Need to get CSV file on the command line.\n";
+my $idcolumn = $opt_idcol;
+my $colsep = $opt_colsep;
+my $file1 = $opt_file1;
+my $file2 = $opt_file2;
 # create parsers, open files
 my $csv1 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep});
 my $csv2 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep});

@@ -14,12 +14,22 @@ The script is in a "quick and dirty but gets the job done" state. Its code looks
 
 ## Usage
 #### Installation
-It's a script, just copy it somewhere. It uses **Text::CSV**, **Data::Dumper** and **Term::ANSIColor** packages. Install them if you do not have them already.
+Copy the script wherever you like. It uses following PERL packages which should be standard on any Linux distribution. Install them if you do not have them already.
+- **Text::CSV**
+- **Data::Dumper**
+- **Term::ANSIColor**
+- **Getopt::Long**
 
 #### Invocation
 ```
-#./csvdiff.pl delimiter uid-column file1 file2
-./csvdiff.pl , ID file1.csv file2.csv
+# Synopsis:
+#./csvdiff.pl --idcol uid-column --file1 file --file2 file [--colsep separator [ --no-color ]]
+
+# Example:
+# Two CSV files where the uid column is named "ID",
+# files are "file1.csv" and "file2.csv".
+# We do not want colored output so we specify --no-color.
+./csvdiff.pl --idcol ID --file1 file1.csv --file2 file2.csv --no-color
 ```
 
 #### Output
