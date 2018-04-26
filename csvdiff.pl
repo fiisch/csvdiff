@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 # TODO:
-#   * change plethora of separate variables for ARGS to one hash
 #   * add case-insensitive comparison
 #   * support for distinct separators in compared files
 #   * support for distinct quotations in compared files
@@ -11,6 +10,8 @@
 #
 # Revision history:
 #
+# 2018-04-26  - Fiisch
+#   * ARGS are now parsed into one hash instead to many variables.
 # 2018-04-25  - Fiisch
 #   * Added simple test to check functionality.
 #   * Added arguments parsing using Getopt::Long.
@@ -26,37 +27,34 @@ use Data::Dumper;
 use Term::ANSIColor;
 use Getopt::Long;
 
-
 # Set up and parse command line arguments.
-
-# mandatory --file1
-my $opt_file1=undef;
-# mandatory --file2
-my $opt_file2=undef;
-# mandatory --idcol
-my $opt_idcol=undef;
+# store ARGS here
+my %opts=();
 # optional --colsep
 # default ,
-my $opt_colsep=',';
+$opts{'colsep'}=',';
 # optional --no-color
 # default false
-my $opt_no_color=0;
+$opts{'no-color'}=0;
 
-GetOptions (
-  "file1=s" => \$opt_file1,
-  "file2=s" => \$opt_file2,
-  "idcol=s" => \$opt_idcol,
-  "colsep=s" => \$opt_colsep,
-  "no-color" => \$opt_no_color
+GetOptions ( \%opts,
+  # mandatory --file1
+  "file1=s",
+  # mandatory --file2
+  "file2=s",
+  # mandatory --idcol
+  "idcol=s",
+  "colsep=s",
+  "no-color"
 ) or die("Error in command line arguments\n");
 
-if(!defined $opt_file1) {
+if(!defined $opts{'file1'}) {
   die "CSV file --file1 not specified.\n";
 }
-if(!defined $opt_file2) {
+if(!defined $opts{'file2'}) {
   die "CSV file --file2 not specified.\n";
 }
-if(!defined $opt_idcol) {
+if(!defined $opts{'idcol'}) {
   die "Id column --idcol not specified.\n";
 }
 
@@ -81,7 +79,7 @@ sub printGreen {
 sub csvifyPrintLt {
   my $arr = shift;
   $csvout->combine(@$arr);
-  if($opt_no_color) {
+  if($opts{'no-color'}) {
     print("< " . $csvout->string() . "\n");
   } else {
     printRed("< " . $csvout->string() . "\n");
@@ -91,7 +89,7 @@ sub csvifyPrintLt {
 sub csvifyPrintGt {
   my $arr = shift;
   $csvout->combine(@$arr);
-  if($opt_no_color) {
+  if($opts{'no-color'}) {
     print("> " . $csvout->string() . "\n");
   } else {
     printGreen("> " . $csvout->string() . "\n");
@@ -104,10 +102,10 @@ sub csvifyPrint {
   print("  " . $csvout->string() . "\n");
 }
 
-my $idcolumn = $opt_idcol;
-my $colsep = $opt_colsep;
-my $file1 = $opt_file1;
-my $file2 = $opt_file2;
+my $idcolumn = $opts{'idcol'};
+my $colsep = $opts{'colsep'};
+my $file1 = $opts{'file1'};
+my $file2 = $opts{'file2'};
 # create parsers, open files
 my $csv1 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep});
 my $csv2 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep});
