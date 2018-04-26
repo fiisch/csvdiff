@@ -5,7 +5,7 @@ Prints out diff of two CSV files on per-field basis. Both CSV files have to have
 - A column with unique identifier ("uid column") for each row. The column must be named the same in both files. Position of the column should not matter but ideally it should be the leftmost one.
 - Both CSV files are sorted by the uid column in the same way.
 - Ordering of columns is the same in both files.
-- Files have to use the same column delimiter.
+- Files can use different column delimiters.
 - Files have to use double quotes for value quoting. Value quoting is optional (with ordinary caveats).
 - Script assumes both files are "identical" in the count of rows and order of values of the uid column. Because CSV files are compared by-row, a "hole" in the uid column in one file will result in bad diff output.
 
@@ -23,13 +23,17 @@ Copy the script wherever you like. It uses following PERL packages which should 
 #### Invocation
 ```
 # Synopsis:
-#./csvdiff.pl --idcol uid-column --file1 file --file2 file [--colsep separator [ --no-color ]]
+#./csvdiff.pl --idcol uid-column --file1 file --file2 file [
+  --colsep1 file1-column-separator
+  --colsep2 file2-column-separator
+  --colsep-out csvdiff-output-column-separator
+  ]
 
 # Example:
 # Two CSV files where the uid column is named "ID",
-# files are "file1.csv" and "file2.csv".
+# files are "file1.csv" and "file2.csv". Output columns will be separated by ";".
 # We do not want colored output so we specify --no-color.
-./csvdiff.pl --idcol ID --file1 file1.csv --file2 file2.csv --no-color
+./csvdiff.pl --idcol ID --file1 file1.csv --file2 file2.csv --colsep-out \; --no-color
 ```
 
 #### Output

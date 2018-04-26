@@ -2,8 +2,6 @@
 
 # TODO:
 #   * add case-insensitive comparison
-#   * support for distinct separators in compared files
-#   * support for distinct quotations in compared files
 #   * possibility to include/ignore some columns
 #   * drop requirement to have csv files sorted by uid column
 #   * drop requirement to have columns of csv files in same order
@@ -30,9 +28,11 @@ use Getopt::Long;
 # Set up and parse command line arguments.
 # store ARGS here
 my %opts=();
-# optional --colsep
+# optional --colsep1 , --colsep2 , --colsep-out
 # default ,
-$opts{'colsep'}=',';
+$opts{'colsep1'}=',';
+$opts{'colsep2'}=',';
+$opts{'colsep-out'}=',';
 # optional --no-color
 # default false
 $opts{'no-color'}=0;
@@ -44,7 +44,9 @@ GetOptions ( \%opts,
   "file2=s",
   # mandatory --idcol
   "idcol=s",
-  "colsep=s",
+  "colsep1=s",
+  "colsep2=s",
+  "colsep-out=s",
   "no-color"
 ) or die("Error in command line arguments\n");
 
@@ -103,14 +105,16 @@ sub csvifyPrint {
 }
 
 my $idcolumn = $opts{'idcol'};
-my $colsep = $opts{'colsep'};
+my $colsep1 = $opts{'colsep1'};
+my $colsep2 = $opts{'colsep2'};
+my $colsep_out = $opts{'colsep-out'};
 my $file1 = $opts{'file1'};
 my $file2 = $opts{'file2'};
 # create parsers, open files
-my $csv1 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep});
-my $csv2 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep});
+my $csv1 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep1});
+my $csv2 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep2});
 # cvsv writer for output, not bound to file, used only for STDOUTing
-$csvout = Text::CSV->new ({binary=>1,auto_diag=>1,always_quote=>1,sep_char=>$colsep});
+$csvout = Text::CSV->new ({binary=>1,auto_diag=>1,always_quote=>1,sep_char=>$colsep_out});
 # open files with utf8, set STDOUT to utf8
 open(my $fh1, '<:encoding(utf8)', $file1) or die "Cannot not open '$file1' $!.\n";
 open(my $fh2, '<:encoding(utf8)', $file2) or die "Cannot not open '$file2' $!.\n";
