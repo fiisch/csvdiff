@@ -1,0 +1,18 @@
+ID: 1
+  "Firstname"
+< "John"
+> "john"
+ID: 3
+  "Lastname"
+< "Sherlock
+"
+> "SherlocK
+"
+ID: 4
+  "Salary"
+< "a vast supply of redshirts"
+> "a vast suPPly of redshirts"
+ID: 5
+  "Salary"
+< "0"
+> "a slice of bread"

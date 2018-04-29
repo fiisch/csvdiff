@@ -27,6 +27,8 @@ Copy the script wherever you like. It uses following PERL packages which should 
   --colsep1 file1-column-separator
   --colsep2 file2-column-separator
   --colsep-out csvdiff-output-column-separator
+  --no-color
+  --no-case
   ]
 
 # Example:
@@ -34,6 +36,9 @@ Copy the script wherever you like. It uses following PERL packages which should 
 # files are "file1.csv" and "file2.csv". Output columns will be separated by ";".
 # We do not want colored output so we specify --no-color.
 ./csvdiff.pl --idcol ID --file1 file1.csv --file2 file2.csv --colsep-out \; --no-color
+
+# The same example for case-insensitive comparison.
+./csvdiff.pl --idcol ID --file1 file1.csv --file2 file2.csv --colsep-out \; --no-color --no-case
 ```
 
 #### Output
@@ -47,4 +52,4 @@ uid column: uid value                 #so you can easily find what rows are diff
 If uid column values of currently compared rows do not match, rows are considered completely different and whole lines are printed into diff.
 
 #### Tests
-Tests are located in the **test** folder. You can invoke them by running **./run_tests.sh** from inside the folder. So far, there is only one test for general correct behavior of the csvdiff, just to establish a baseline.
+Tests are located in the **test** folder. You can invoke them by running **./run_tests.sh** from inside the folder. So far, there are only tests for general correct behavior of the csvdiff, just to establish a baseline.

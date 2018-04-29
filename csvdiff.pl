@@ -1,13 +1,14 @@
 #!/usr/bin/perl
 
 # TODO:
-#   * add case-insensitive comparison
 #   * possibility to include/ignore some columns
 #   * drop requirement to have csv files sorted by uid column
 #   * drop requirement to have columns of csv files in same order
 #
 # Revision history:
 #
+# 2018-04-29  - Fiisch
+#   * Added case-insensitive comparison (--no-case).
 # 2018-04-26  - Fiisch
 #   * ARGS are now parsed into one hash instead to many variables.
 # 2018-04-25  - Fiisch
@@ -24,6 +25,7 @@ use Text::CSV;
 use Data::Dumper;
 use Term::ANSIColor;
 use Getopt::Long;
+use feature 'fc';
 
 # Set up and parse command line arguments.
 # store ARGS here
@@ -36,6 +38,9 @@ $opts{'colsep-out'}=',';
 # optional --no-color
 # default false
 $opts{'no-color'}=0;
+# optional --no-case
+# default value
+$opts{'no-case'}=0;
 
 GetOptions ( \%opts,
   # mandatory --file1
@@ -47,7 +52,8 @@ GetOptions ( \%opts,
   "colsep1=s",
   "colsep2=s",
   "colsep-out=s",
-  "no-color"
+  "no-color",
+  "no-case"
 ) or die("Error in command line arguments\n");
 
 if(!defined $opts{'file1'}) {
@@ -110,6 +116,7 @@ my $colsep2 = $opts{'colsep2'};
 my $colsep_out = $opts{'colsep-out'};
 my $file1 = $opts{'file1'};
 my $file2 = $opts{'file2'};
+my $ignorecase = $opts{'no-case'};
 # create parsers, open files
 my $csv1 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep1});
 my $csv2 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep2});
@@ -206,11 +213,22 @@ while (1) {
     my @tmphead1 = ();
     my @tmparr2 = ();
     for (my $ind = 0; $ind < scalar @$f1line; $ind++) {
-      if ($f1line->[$ind] ne $f2line->[$ind]) {
-        #write differences to temporary arrays
-        push(@tmphead1,$header1->[$ind]);
-        push(@tmparr1,$f1line->[$ind]);
-        push(@tmparr2,$f2line->[$ind]);
+      # if we are doing case-insensitive comparison
+      if ($ignorecase) {
+        # we use fc because of unicode folding
+        if (fc($f1line->[$ind]) ne fc($f2line->[$ind])) {
+          #write differences to temporary arrays
+          push(@tmphead1,$header1->[$ind]);
+          push(@tmparr1,$f1line->[$ind]);
+          push(@tmparr2,$f2line->[$ind]);
+        }
+      } else {  # case sensitive comparison
+        if ($f1line->[$ind] ne $f2line->[$ind]) {
+          #write differences to temporary arrays
+          push(@tmphead1,$header1->[$ind]);
+          push(@tmparr1,$f1line->[$ind]);
+          push(@tmparr2,$f2line->[$ind]);
+        }
       }
     }
     # if there were any differences, print the diff
