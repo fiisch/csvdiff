@@ -14,6 +14,8 @@
 #     that manifest as differrent strings in the CSV file.
 #     Options: --struct-cols (comma-separated list of columns with internal structure)
 #              --struct-sep (separator of field of the internal column structure)
+#   * Changed internal sorting of structured columns to case insensitive. General
+#     behavior is not affected by this change.
 # 2018-04-29  - Fiisch
 #   * Added case-insensitive comparison (--no-case).
 # 2018-04-26  - Fiisch
@@ -244,24 +246,19 @@ while (1) {
         # explode both fields to arrays, sort them alphabetically,
         # and join them together to make a string which will be passed
         # to standard compare below
-
-        # TODO: this sort is still case sensitive!!!
-        # in cases where cases match and sorting is complete, the remainder of parts
-        # can be in different cases and the sorting will seem to work correctly when
-        # --no-case is used. but it is not true
-        # example:
-        # abc@domain.tld and Abc@domain.tld will be reported as different even with --no-case.
-        # abc@domain.tld and abd@DOMAIN.TLD will NOT be reported with --no-case because the
-        # comparison ended on the part before @ and therefore rest of the string does not affect
-        # the sort order.
-        my @tmpstruct1 = sort(split(/$structsep/, $f1field));
-        my @tmpstruct2 = sort(split(/$structsep/, $f2field));
+        my @tmpa1 = split(/$structsep/, $f1field);
+        my @tmpa2 = split(/$structsep/, $f2field);
+        # sorting is generally case-insensitive and it does not matter for case-sensitive
+        # comparison. original values of sorted fields are not changed so if they
+        # differ in their case-ness, the final comparison will catch that
+        my @tmpstruct1 = sort {fc($a) cmp fc($b)} @tmpa1;
+        my @tmpstruct2 = sort {fc($a) cmp fc($b)} @tmpa2;
 
         $f1field = join($structsepout, @tmpstruct1);
         $f2field = join($structsepout, @tmpstruct2);
       }
 
-      # if we are doing case-insensitive comparison
+      # if we are doing case-insensitive comparison.
       # de-case cannot be before sort, because it could invalidate separators
       # inside the structured field
       if ($ignorecase) {
