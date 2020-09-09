@@ -1,12 +1,19 @@
 #!/usr/bin/perl
 
 # TODO:
+#   * finish structured columns comparison feature (debug + tests!)
 #   * possibility to include/ignore some columns
 #   * drop requirement to have csv files sorted by uid column
 #   * drop requirement to have columns of csv files in same order
 #
 # Revision history:
 #
+# 2020-09-09  - Fiisch
+#   * Added option to specify CSV columns with internal structure and to
+#     make script aware of it - so it does not report identical data structures
+#     that manifest as differrent strings in the CSV file.
+#     Options: --struct-cols (comma-separated list of columns with internal structure)
+#              --struct-sep (separator of field of the internal column structure)
 # 2018-04-29  - Fiisch
 #   * Added case-insensitive comparison (--no-case).
 # 2018-04-26  - Fiisch
@@ -41,6 +48,10 @@ $opts{'no-color'}=0;
 # optional --no-case
 # default value
 $opts{'no-case'}=0;
+# list of columns with internal structure. comma-separated list
+$opts{'struct-cols'}='';
+# separator of fields inside the structured column. default: comma
+$opts{'struct-sep'}=',';
 
 GetOptions ( \%opts,
   # mandatory --file1
@@ -53,7 +64,9 @@ GetOptions ( \%opts,
   "colsep2=s",
   "colsep-out=s",
   "no-color",
-  "no-case"
+  "no-case",
+  "struct-cols=s",
+  "struct-sep=s",
 ) or die("Error in command line arguments\n");
 
 if(!defined $opts{'file1'}) {
@@ -117,6 +130,15 @@ my $colsep_out = $opts{'colsep-out'};
 my $file1 = $opts{'file1'};
 my $file2 = $opts{'file2'};
 my $ignorecase = $opts{'no-case'};
+my @structcols = split(',',$opts{'struct-cols'});
+my $structsep = $opts{'struct-sep'};
+my $structsepout = $opts{'struct-sep'};
+# pipe is a special character in split, so we have to escape it
+# we also need special structsep output var which we don't edit
+if ($structsep eq '|') {
+  $structsep = '\|';
+}
+
 # create parsers, open files
 my $csv1 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep1});
 my $csv2 = Text::CSV->new ({binary=>1,auto_diag=>1,sep_char=>$colsep2});
@@ -213,22 +235,47 @@ while (1) {
     my @tmphead1 = ();
     my @tmparr2 = ();
     for (my $ind = 0; $ind < scalar @$f1line; $ind++) {
+
+      my $f1field = $f1line->[$ind];
+      my $f2field = $f2line->[$ind];
+
+      # if field has internal structure, we preprocess it for the compare
+      if (grep(/^$header1->[$ind]$/, @structcols)) {
+        # explode both fields to arrays, sort them alphabetically,
+        # and join them together to make a string which will be passed
+        # to standard compare below
+
+        # TODO: this sort is still case sensitive!!!
+        # in cases where cases match and sorting is complete, the remainder of parts
+        # can be in different cases and the sorting will seem to work correctly when
+        # --no-case is used. but it is not true
+        # example:
+        # abc@domain.tld and Abc@domain.tld will be reported as different even with --no-case.
+        # abc@domain.tld and abd@DOMAIN.TLD will NOT be reported with --no-case because the
+        # comparison ended on the part before @ and therefore rest of the string does not affect
+        # the sort order.
+        my @tmpstruct1 = sort(split(/$structsep/, $f1field));
+        my @tmpstruct2 = sort(split(/$structsep/, $f2field));
+
+        $f1field = join($structsepout, @tmpstruct1);
+        $f2field = join($structsepout, @tmpstruct2);
+      }
+
       # if we are doing case-insensitive comparison
+      # de-case cannot be before sort, because it could invalidate separators
+      # inside the structured field
       if ($ignorecase) {
         # we use fc because of unicode folding
-        if (fc($f1line->[$ind]) ne fc($f2line->[$ind])) {
-          #write differences to temporary arrays
-          push(@tmphead1,$header1->[$ind]);
-          push(@tmparr1,$f1line->[$ind]);
-          push(@tmparr2,$f2line->[$ind]);
-        }
-      } else {  # case sensitive comparison
-        if ($f1line->[$ind] ne $f2line->[$ind]) {
-          #write differences to temporary arrays
-          push(@tmphead1,$header1->[$ind]);
-          push(@tmparr1,$f1line->[$ind]);
-          push(@tmparr2,$f2line->[$ind]);
-        }
+        $f1field = fc($f1field);
+        $f2field = fc($f2field);
+      }
+
+      # do the compare
+      if ($f1field ne $f2field) {
+        #write differences to temporary arrays
+        push(@tmphead1,$header1->[$ind]);
+        push(@tmparr1,$f1line->[$ind]);
+        push(@tmparr2,$f2line->[$ind]);
       }
     }
     # if there were any differences, print the diff

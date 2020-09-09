@@ -29,6 +29,8 @@ Copy the script wherever you like. It uses following PERL packages which should 
   --colsep-out csvdiff-output-column-separator
   --no-color
   --no-case
+  --struct-cols
+  --struct-sep
   ]
 
 # Example:
