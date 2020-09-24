@@ -1,13 +1,14 @@
 #!/usr/bin/perl
 
 # TODO:
-#   * finish structured columns comparison feature (debug + tests!)
 #   * possibility to include/ignore some columns
 #   * drop requirement to have csv files sorted by uid column
 #   * drop requirement to have columns of csv files in same order
 #
 # Revision history:
 #
+# 2020-09-24  - Fiisch
+#   * Added tests for comparing columns with internal structure. To have a baseline.
 # 2020-09-09  - Fiisch
 #   * Added option to specify CSV columns with internal structure and to
 #     make script aware of it - so it does not report identical data structures

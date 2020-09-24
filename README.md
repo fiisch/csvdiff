@@ -43,8 +43,13 @@ Copy the script wherever you like. It uses following PERL packages which should 
 ./csvdiff.pl --idcol ID --file1 file1.csv --file2 file2.csv --colsep-out \; --no-color --no-case
 ```
 
+**Notable features**
+- Utility can now compare CSV fields that have some internal structure hidden in the textual representation (i.e. arrays and lists). If fields in a list have a separator, you can make csvdiff aware of it. csvdiff then explodes those fields and compares them as two sets of elements. This is useful in cases where two lists have the same values in them but their representation as a serialized string differs.
+  - Use **--struct-cols** parameter to specify which CSV columns should be checked with structure-aware comparison. Parameter takes comma-separated list of column names. Example: `--struct-cols Firstname,Salary` to specify two columns, "Firstname" and "Salary".
+  - Use **--struct-sep** parameter to specify a separator of a list inside a field value. Only one separator is allowed. Example: Field with value "role1|role2|role3" has a `--struct-sep \|` (backslash is just an escape character because shell).
+
 #### Output
-Script outputs about four lines for each row where there is something different. Sample output is this:
+Script outputs four lines for each row where there is something different. Sample output is this:
 ```
 uid column: uid value                 #so you can easily find what rows are diffed
   "column1","column2","column2",...   #list of columns whose values differ
