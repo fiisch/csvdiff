@@ -177,14 +177,14 @@ if (! defined $header2) {
 }
 my $id2pos = undef;
 $tmp = 0;
-foreach my $f (@$header1) {
+foreach my $f (@$header2) {
   if ($f eq $idcolumn) {
     $id2pos = $tmp;
     last;
   }
   $tmp++;
 }
-if (! defined $id1pos) {
+if (! defined $id2pos) {
   die "Cannot find id column in header of '$file2' $!.\n";
 }
 
