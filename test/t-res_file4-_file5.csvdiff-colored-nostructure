@@ -1,0 +1,9 @@
+ID: 1
+  "Lastname"
+[31m< "Doe|Deer"
+[0m[32m> "deer|Doe"
+[0mID: 4
+  "Salary"
+[31m< "a vast supply of redshirts|mr spock"
+[0m[32m> "mr spock|a vast supply of redshirts"
+[0m
